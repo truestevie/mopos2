@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 
 from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash
 
 
+@login_required
 def show_transaction(request, shopping_basket_id):
     sb = ShoppingBasket.objects.get(pk=shopping_basket_id)
     cash_received_list = Cash.objects.filter(shopping_basket=sb, electronic=False)
@@ -24,6 +26,7 @@ def show_transaction(request, shopping_basket_id):
                    })
 
 
+@login_required
 def show_basket(request):
     sb = ShoppingBasket.objects.filter(lifecycle="OPEN").first()
     if not sb:
@@ -64,26 +67,31 @@ def show_basket(request):
                                                })
 
 
+@login_required
 def receive_cash(request, shopping_basket_id, cash_received):
     Cash.objects.add_cash_item(shopping_basket_id, cash_received)
     return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
+@login_required
 def receive_cents(request, shopping_basket_id, cents_received):
     Cash.objects.add_cash_cents_item(shopping_basket_id, cents_received)
     return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
+@login_required
 def remove_cash(request, shopping_basket_id, cash_id):
     Cash.objects.remove_cash_item(shopping_basket_id, cash_id)
     return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
+@login_required
 def add_electronic_payment_with_automatic_value(request, shopping_basket_id):
     Cash.objects.add_electronic_payment_with_automatic_value(shopping_basket_id)
     return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
+@login_required
 def reset_table_number(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.table_number = 1
@@ -91,6 +99,7 @@ def reset_table_number(request, shopping_basket_id):
     return HttpResponseRedirect("/pos/basket")
 
 
+@login_required
 def increment_table_number(request, shopping_basket_id, increment_value):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.table_number += increment_value
@@ -98,6 +107,7 @@ def increment_table_number(request, shopping_basket_id, increment_value):
     return HttpResponseRedirect("/pos/basket")
 
 
+@login_required
 def close_basket(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.lifecycle = 'CLOSED'
@@ -105,6 +115,7 @@ def close_basket(request, shopping_basket_id):
     return HttpResponseRedirect("/pos/basket")
 
 
+@login_required
 def add_item_to_basket(request, shopping_basket_id, item_template_id):
     new_basket_item = Item.objects.create_item(shopping_basket_id=shopping_basket_id, item_template_id=item_template_id)
     sub_item_template_list = SubItemTemplate.objects.filter(item_template__id=item_template_id, available=True)
@@ -116,6 +127,7 @@ def add_item_to_basket(request, shopping_basket_id, item_template_id):
     return HttpResponseRedirect("/pos/basket")
 
 
+@login_required
 def remove_item_from_basket(request, shopping_basket_id, item_id):
     item = Item.objects.filter(id=item_id).first()
     sb = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
@@ -126,6 +138,7 @@ def remove_item_from_basket(request, shopping_basket_id, item_id):
     return HttpResponseRedirect("/pos/basket")
 
 
+@login_required
 def add_sub_item_to_item(request, shopping_basket_id, item_id, sub_item_template_id):
     SubItem.objects.create_sub_item(shopping_basket_id=shopping_basket_id,
                                     item_id=item_id,
