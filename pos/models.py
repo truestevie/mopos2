@@ -99,3 +99,13 @@ class SubItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True)
     shopping_basket = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE, null=True)
     objects = SubItemManager()
+
+
+class CashRegister(models.Model):
+    initial_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sales_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sales_electronic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+
+class Transaction(models.Model):
+    order = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE)

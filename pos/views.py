@@ -4,6 +4,10 @@ from django.http import HttpResponseRedirect
 from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem
 
 
+def show_transaction(request, shopping_basket_id):
+    sb = ShoppingBasket.objects.get(pk=shopping_basket_id)
+    return render(request, 'pos/transaction.html', {'basket': sb,})
+
 def show_basket(request):
     sb = ShoppingBasket.objects.filter(lifecycle="OPEN").first()
     if not sb:
