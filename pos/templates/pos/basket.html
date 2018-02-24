@@ -43,12 +43,10 @@
     <tr>
         <td>{{ item.description }}</td>
         <td>€ {{ item.unit_price }}</td>
-        <td><a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item [{{ item.id }}]</a></td>
+        <td><a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item</a></td>
     </tr>
     {% endfor %}
 </table>
-<div>Number of items: {{ basket.number_of_items }}</div>
-<div>Total amount: € {{ basket.total_price }}</div>
 {% else %}
 <div><i>No items ordered</i>
 </div>
@@ -76,13 +74,50 @@
 <table>
 {% for item, sub_item_templates in select_sub_items_dict.items %}
 <tr>
-    <td>{{ item.description }} [{{ item.id }}]</td>
+    <td><font color="red">{{ item.description }} [{{ item.id }}]</font></td>
     <td>{% for sub_item_template in sub_item_templates %}
         <a href="/pos/basket/{{ basket.id }}/item/{{ item.id }}/add_sub_item/{{ sub_item_template.id }}/">{{ sub_item_template.description }}</a>
         {% endfor %}</td>
 </tr>
 {% endfor %}
 </table>
+{% endif %}
+
+{% if basket.number_of_items > 0 %}
+<h2>Basket overview</h2>
+<table>
+    <tr><td>Number of items</td><td>{{ basket.number_of_items }}</td></tr>
+    <tr><td>Total amount</td><td>€ {{ basket.total_price }}</td></tr>
+    <tr><td>Cash received</td><td>€ {{ basket.cash_received_physical }}</td></tr>
+    <tr><td>Notes & coins received</td>
+        <td>
+        {% for cash in cash_received_list %}
+            <a href="/pos/basket/{{ basket.id }}/remove_cash/{{ cash.id }}/">{{ cash.value }}</a>
+        {% endfor %}
+        </td></tr>
+    <tr><td>Electronic payment</td><td>€ {{ basket.cash_received_electronic }}</td></tr>
+    <tr><td>Return to customer</td><td><font color="{{ cash_color }}">€ {{ cash_to_return }}</font></td></tr>
+
+</table>
+<h3>Add cash</h3>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/500/">500</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/200/">200</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/100/">100</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/50/">50</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/20/">20</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/10/">10</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/5/">5</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/2/">2</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cash/1/">1</a>
+
+<a href="/pos/basket/{{ basket.id }}/receive_cents/50/">0,50</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cents/20/">0,20</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cents/10/">0,10</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cents/5/">0,05</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cents/2/">0,02</a>
+<a href="/pos/basket/{{ basket.id }}/receive_cents/1/">0,01</a>
+
+
 {% endif %}
 
 

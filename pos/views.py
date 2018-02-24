@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
-from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem
+from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash
 
 
 def show_transaction(request, shopping_basket_id):
     sb = ShoppingBasket.objects.get(pk=shopping_basket_id)
-    return render(request, 'pos/transaction.html', {'basket': sb,})
+    return render(request, 'pos/transaction.html', {'basket': sb})
 
 def show_basket(request):
     sb = ShoppingBasket.objects.filter(lifecycle="OPEN").first()
@@ -28,14 +28,36 @@ def show_basket(request):
             if(number_of_linked_sub_items == 0):
                 sub_item_template_dict[item] = sub_item_template_list
         # elif sub_item_template_list.count() = 1:
+    cash_received_list = Cash.objects.filter(shopping_basket=sb)
+    cash_to_return = sb.cash_received_physical + sb.cash_received_electronic - sb.total_price
+    cash_color = ""
+    if cash_to_return < 0:
+        cash_color = "red"
 
     print("---de dict van sub items---", sub_item_template_dict)
+    print("---de cash received list---", cash_received_list)
+    print("---cash to return---", cash_to_return)
     return render(request, 'pos/basket.html', {'basket': sb,
                                                'template_list': template_list,
                                                'item_list': item_list,
                                                'kitchen_item_list': kitchen_item_list,
-                                               'select_sub_items_dict': sub_item_template_dict
+                                               'select_sub_items_dict': sub_item_template_dict,
+                                               'cash_received_list': cash_received_list,
+                                               'cash_to_return': cash_to_return,
+                                               'cash_color': cash_color
                                                })
+
+def receive_cash(request, shopping_basket_id, cash_received):
+    Cash.objects.add_cash_item(shopping_basket_id, cash_received)
+    return HttpResponseRedirect("/pos/basket")
+
+def receive_cents(request, shopping_basket_id, cents_received):
+    Cash.objects.add_cash_cents_item(shopping_basket_id, cents_received)
+    return HttpResponseRedirect("/pos/basket")
+
+def remove_cash(request, shopping_basket_id, cash_id):
+    Cash.objects.remove_cash_item(shopping_basket_id, cash_id)
+    return HttpResponseRedirect("/pos/basket")
 
 def reset_table_number(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)

@@ -1,4 +1,7 @@
 from django.db import models
+import decimal
+
+D = decimal.Decimal
 
 
 class ShoppingBasketManager(models.Manager):
@@ -14,6 +17,8 @@ class ShoppingBasketManager(models.Manager):
 class ShoppingBasket(models.Model):
     number_of_items = models.IntegerField(default=0)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cash_received_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cash_received_electronic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     creation_date = models.DateTimeField(auto_now_add=True)
     last_change_date = models.DateTimeField(auto_now=True)
     owner = models.SmallIntegerField(default=0)
@@ -21,6 +26,9 @@ class ShoppingBasket(models.Model):
     lifecycle = models.CharField(max_length=10, choices=LIFECYCLE_CHOICES, default="OPEN")
     table_number = models.IntegerField(default=1)
     objects = ShoppingBasketManager()
+
+    def receive_cash(self, cash_received):
+        self.cash_received_physical += cash_received
 
 
 class ItemTemplate(models.Model):
@@ -109,3 +117,38 @@ class CashRegister(models.Model):
 
 class Transaction(models.Model):
     order = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE)
+
+
+class CashManager(models.Manager):
+    def add_cash_item(self, shopping_basket_id, value):
+        shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+        cash_item = self.create(shopping_basket=shopping_basket, value=value)
+        shopping_basket.cash_received_physical += value
+        shopping_basket.save()
+        return cash_item
+
+    def remove_cash_item(self, shopping_basket_id, cash_id):
+        shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+        cash_item = Cash.objects.filter(pk=cash_id).first()
+        shopping_basket.cash_received_physical -= cash_item.value
+        shopping_basket.save()
+        cash_item.delete()
+
+    def add_cash_cents_item(self, shopping_basket_id, value):
+        shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+        cash_item = self.create(shopping_basket=shopping_basket, value=value/100)
+        shopping_basket.cash_received_physical += D(value/100)
+        shopping_basket.save()
+        return cash_item
+
+
+class Cash(models.Model):
+    shopping_basket = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE)
+    value = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    objects = CashManager()
+
+    class Meta:
+        ordering = ['-value']
+
+    def __str__(self):
+        return "{} ({})".format(self.value, self.shopping_basket)
