@@ -8,6 +8,7 @@ def show_transaction(request, shopping_basket_id):
     sb = ShoppingBasket.objects.get(pk=shopping_basket_id)
     return render(request, 'pos/transaction.html', {'basket': sb})
 
+
 def show_basket(request):
     sb = ShoppingBasket.objects.filter(lifecycle="OPEN").first()
     if not sb:
@@ -16,7 +17,7 @@ def show_basket(request):
     item_list = Item.objects.filter(shopping_basket=sb)
     print("---Item List----", item_list)
     kitchen_item_list = SubItem.objects.filter(shopping_basket=sb)
-    #for sit in SubItemTemplate.objects.all():
+    # for sit in SubItemTemplate.objects.all():
     #    print("---", sit.description, sit.item_template)
     sub_item_template_dict = {}
     for item in item_list:
@@ -25,7 +26,7 @@ def show_basket(request):
             print("Number of available sub items:", sub_item_template_list.count())
             print(item.id, sub_item_template_list)
             number_of_linked_sub_items = SubItem.objects.filter(item=item).count()
-            if(number_of_linked_sub_items == 0):
+            if number_of_linked_sub_items == 0:
                 sub_item_template_dict[item] = sub_item_template_list
         # elif sub_item_template_list.count() = 1:
     cash_received_list = Cash.objects.filter(shopping_basket=sb)
@@ -47,17 +48,21 @@ def show_basket(request):
                                                'cash_color': cash_color
                                                })
 
+
 def receive_cash(request, shopping_basket_id, cash_received):
     Cash.objects.add_cash_item(shopping_basket_id, cash_received)
     return HttpResponseRedirect("/pos/basket")
+
 
 def receive_cents(request, shopping_basket_id, cents_received):
     Cash.objects.add_cash_cents_item(shopping_basket_id, cents_received)
     return HttpResponseRedirect("/pos/basket")
 
+
 def remove_cash(request, shopping_basket_id, cash_id):
     Cash.objects.remove_cash_item(shopping_basket_id, cash_id)
     return HttpResponseRedirect("/pos/basket")
+
 
 def reset_table_number(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
@@ -65,11 +70,13 @@ def reset_table_number(request, shopping_basket_id):
     basket.save()
     return HttpResponseRedirect("/pos/basket")
 
+
 def increment_table_number(request, shopping_basket_id, increment_value):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.table_number += increment_value
     basket.save()
     return HttpResponseRedirect("/pos/basket")
+
 
 def close_basket(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
@@ -77,11 +84,12 @@ def close_basket(request, shopping_basket_id):
     basket.save()
     return HttpResponseRedirect("/pos/basket")
 
+
 def add_item_to_basket(request, shopping_basket_id, item_template_id):
     new_basket_item = Item.objects.create_item(shopping_basket_id=shopping_basket_id, item_template_id=item_template_id)
     sub_item_template_list = SubItemTemplate.objects.filter(item_template__id = item_template_id, available = True)
     print("Number of available sub items for new basket item:", sub_item_template_list.count())
-    if(sub_item_template_list.count() == 1):
+    if sub_item_template_list.count() == 1:
         SubItem.objects.create_sub_item(shopping_basket_id=shopping_basket_id,
                                         item_id=new_basket_item.id,
                                         sub_item_template=sub_item_template_list.first())
@@ -100,7 +108,6 @@ def remove_item_from_basket(request, shopping_basket_id, item_id):
 
 def add_sub_item_to_item(request, shopping_basket_id, item_id, sub_item_template_id):
     SubItem.objects.create_sub_item(shopping_basket_id=shopping_basket_id,
-                            item_id=item_id,
-                            sub_item_template=SubItemTemplate.objects.filter(id=sub_item_template_id).first())
+                                    item_id=item_id,
+                                    sub_item_template=SubItemTemplate.objects.filter(id=sub_item_template_id).first())
     return HttpResponseRedirect("/pos/basket")
-
