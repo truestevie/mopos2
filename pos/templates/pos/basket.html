@@ -1,0 +1,90 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Basket</title>
+</head>
+<body>
+<h1>Shopping basket</h1>
+<div>Basket ID: {{ basket.id }}</div>
+<div>Table: {{ basket.table_number }}
+    <a href="/pos/basket/{{ basket.id }}/reset/">Set to 1</a>
+    <a href="/pos/basket/{{ basket.id }}/increment_table_number/1/">+1</a>
+    <a href="/pos/basket/{{ basket.id }}/increment_table_number/5/">+5</a>
+</div>
+<div><a href="/pos/basket/{{ basket.id }}/close_basket/">Close basket</a></div>
+<h2>Available items</h2>
+{% if template_list %}
+<table>
+    <tr>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Action</th>
+    </tr>
+    {% for template in template_list %}
+    <tr>
+        <td>{{ template.description }}</td>
+        <td>€ {{ template.unit_price }}</td>
+        <td><a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/">Add item</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div><i>No products defined</i>
+</div>
+{% endif %}
+<h2>Ordered items</h2>
+{% if item_list %}
+<table>
+    <tr>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Action</th>
+    </tr>
+    {% for item in item_list %}
+    <tr>
+        <td>{{ item.description }}</td>
+        <td>€ {{ item.unit_price }}</td>
+        <td><a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item [{{ item.id }}]</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<div>Number of items: {{ basket.number_of_items }}</div>
+<div>Total amount: € {{ basket.total_price }}</div>
+{% else %}
+<div><i>No items ordered</i>
+</div>
+{% endif %}
+<h2>Kitchen items</h2>
+{% if kitchen_item_list %}
+<table>
+    <tr>
+        <th>Description</th>
+    </tr>
+    {% for kitchen_item in kitchen_item_list %}
+    <tr>
+        <td>{{ kitchen_item.description }} ({{ kitchen_item.item.description }} [{{ kitchen_item.item.id }}])</td>
+
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div><i>No kitchen items ordered</i>
+</div>
+{% endif %}
+
+{% if select_sub_items_dict %}
+<h2>Options</h2>
+<table>
+{% for item, sub_item_templates in select_sub_items_dict.items %}
+<tr>
+    <td>{{ item.description }} [{{ item.id }}]</td>
+    <td>{% for sub_item_template in sub_item_templates %}
+        <a href="/pos/basket/{{ basket.id }}/item/{{ item.id }}/add_sub_item/{{ sub_item_template.id }}/">{{ sub_item_template.description }}</a>
+        {% endfor %}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
+
+
+</body>
+</html>
