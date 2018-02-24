@@ -109,7 +109,7 @@ class SubItem(models.Model):
     objects = SubItemManager()
 
     class Meta:
-        ordering = ['description','item__code']
+        ordering = ['description', 'item__code']
 
 
 class CashRegister(models.Model):
@@ -133,7 +133,10 @@ class CashManager(models.Manager):
     def remove_cash_item(self, shopping_basket_id, cash_id):
         shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
         cash_item = Cash.objects.filter(pk=cash_id).first()
-        shopping_basket.cash_received_physical -= cash_item.value
+        if not cash_item.electronic:
+            shopping_basket.cash_received_physical -= cash_item.value
+        else:
+            shopping_basket.cash_received_electronic -= cash_item.value
         shopping_basket.save()
         cash_item.delete()
 
@@ -144,11 +147,21 @@ class CashManager(models.Manager):
         shopping_basket.save()
         return cash_item
 
+    def add_electronic_payment_with_automatic_value(self, shopping_basket_id):
+        shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+        electronic_value = shopping_basket.total_price - shopping_basket.cash_received_physical -\
+                           shopping_basket.cash_received_electronic
+        cash_item = self.create(shopping_basket=shopping_basket, value=electronic_value, electronic=True)
+        shopping_basket.cash_received_electronic += electronic_value
+        shopping_basket.save()
+        return cash_item
+
 
 class Cash(models.Model):
     shopping_basket = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE)
     value = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     objects = CashManager()
+    electronic = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['-value']

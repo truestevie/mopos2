@@ -22,7 +22,6 @@ td, th {
     <a href="/pos/basket/{{ basket.id }}/increment_table_number/1/">+1</a>
     <a href="/pos/basket/{{ basket.id }}/increment_table_number/5/">+5</a>
 </div>
-<div><a href="/pos/basket/{{ basket.id }}/close_basket/">Close basket</a></div>
 <h2>Available items</h2>
 {% if template_list %}
 <table>
@@ -58,6 +57,7 @@ td, th {
         <td><a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item</a> ({{ item.id }})</td>
     </tr>
     {% endfor %}
+    <tr><td>Sum</td><td align="right"><a href="/pos/transaction/{{ basket.id }}/"><b>€ {{ basket.total_price }}</b></a></td></tr>
 </table>
 {% else %}
 <div><i>No items ordered</i>

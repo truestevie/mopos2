@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import show_basket, reset_table_number, close_basket, increment_table_number, add_item_to_basket,\
-    remove_item_from_basket, add_sub_item_to_item, show_transaction, receive_cash, remove_cash, receive_cents
+    remove_item_from_basket, add_sub_item_to_item, show_transaction, receive_cash, remove_cash, receive_cents, \
+    add_electronic_payment_with_automatic_value
 
 urlpatterns = [
     path('', show_basket, name='show_basket'),
@@ -12,6 +13,11 @@ urlpatterns = [
     path('basket/<int:shopping_basket_id>/receive_cash/<int:cash_received>/', receive_cash, name='receive_cash'),
     path('basket/<int:shopping_basket_id>/remove_cash/<int:cash_id>/', remove_cash, name='remove_cash'),
     path('basket/<int:shopping_basket_id>/receive_cents/<int:cents_received>/', receive_cents, name='receive_cents'),
+    path('basket/<int:shopping_basket_id>/receive_electronic_payment/automatic/',
+         add_electronic_payment_with_automatic_value,
+         name='add_electronic_payment_with_automatic_value'),
+    # path('basket/<int:shopping_basket_id>/receive_electronic_payment/<int:electronic_received>/<int:electronic_cents_received/',
+    #     receive_electronic_payment, name='receive_electronic_payment'),
     path('basket/<int:shopping_basket_id>/close_basket/', close_basket, name='close_basket'),
     path('basket/<int:shopping_basket_id>/add_item/<int:item_template_id>/',
          add_item_to_basket,

@@ -56,7 +56,25 @@ td, th {
 <a href="/pos/basket/{{ basket.id }}/receive_cents/1/">€0,01</a>
 </td></tr>
 </table>
+<h2>Electronic</h2>
+<table>
+    <tr>
+        <td>E-payments received</td>
+        <td>
+        {% for electronic in electronic_received_list %}
+            <a href="/pos/basket/{{ basket.id }}/remove_cash/{{ electronic.id }}/">{{ electronic.value }}</a>
+        {% endfor %}
+        </td>
+    </tr>
+    <tr>
+        <td>Add electronic payment</td>
+        <td align="right"><a href="/pos/basket/{{ basket.id }}/receive_electronic_payment/automatic/">€ {{ cash_to_receive }}</a>
+        </td>
+    </tr>
+</table>
 {% endif %}
 <p><a href="/pos/basket/">Basket page</a></p>
+<br /><br />
+<p><a href="/pos/basket/{{ basket.id }}/close_basket/">Close basket (!)</a></p>
 </body>
 </html>
