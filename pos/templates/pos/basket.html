@@ -90,14 +90,13 @@ p, div, table, td, th {
 <table>
 {% for item, sub_item_templates in select_sub_items_dict.items %}
 <tr>
-    <td><font color="red">{{ item.description }} [{{ item.id }}]</font></td>
+    <td><font color="red">{{ item.description }} ({{ item.id }})</font></td>
     <td>{% for sub_item_template in sub_item_templates %}
-        <a href="/pos/basket/{{ basket.id }}/item/{{ item.id }}/add_sub_item/{{ sub_item_template.id }}/">{{ sub_item_template.description }}</a>
+        <a href="/pos/basket/{{ basket.id }}/item/{{ item.id }}/add_sub_item/{{ sub_item_template.id }}/">{{ sub_item_template.description }}</a>&nbsp;
         {% endfor %}</td>
 </tr>
 {% endfor %}
 </table>
 {% endif %}
-<p><a href="/pos/transaction/{{ basket.id }}/">Transaction page</a></p>
 </body>
 </html>
