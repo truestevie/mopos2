@@ -108,6 +108,9 @@ class SubItem(models.Model):
     shopping_basket = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE, null=True)
     objects = SubItemManager()
 
+    class Meta:
+        ordering = ['description','item__code']
+
 
 class CashRegister(models.Model):
     initial_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)

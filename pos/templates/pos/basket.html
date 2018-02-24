@@ -15,8 +15,8 @@ td, th {
 </style>
 </head>
 <body>
-<h1>Shopping basket</h1>
-<div>Basket ID: {{ basket.id }}</div>
+<p>
+<h1>Shopping basket {{ basket.id }}</h1>
 <div>Table: <b>{{ basket.table_number }}</b>
     <a href="/pos/basket/{{ basket.id }}/reset/">Set to 1</a>
     <a href="/pos/basket/{{ basket.id }}/increment_table_number/1/">+1</a>
@@ -95,48 +95,6 @@ td, th {
 {% endfor %}
 </table>
 {% endif %}
-
-{% if basket.number_of_items > 0 %}
-<h2>Basket overview</h2>
-<table>
-    <tr><td>Number of items</td><td align="right">{{ basket.number_of_items }}</td></tr>
-    <tr><td>Total amount</td><td align="right"><b>€ {{ basket.total_price }}</b></td></tr>
-    <tr><td>Cash received</td><td align="right">€ {{ basket.cash_received_physical }}</td></tr>
-
-    <tr><td>Electronic payment</td><td align="right">€ {{ basket.cash_received_electronic }}</td></tr>
-    <tr><td>Return to customer</td><td align="right"><font color="{{ cash_color }}">€ {{ cash_to_return }}</font></td></tr>
-
-</table>
-<h2>Cash</h2>
-<table>
-    <tr><td>Notes & coins received</td>
-        <td>
-        {% for cash in cash_received_list %}
-            <a href="/pos/basket/{{ basket.id }}/remove_cash/{{ cash.id }}/">{{ cash.value }}</a>
-        {% endfor %}
-        </td></tr>
-    <tr><td>Add notes</td>
-        <td>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/500/">€500</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/200/">€200</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/100/">€100</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/50/">€50</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/20/">€20</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/10/">€10</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/5/">€5</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/2/">€2</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cash/1/">€1</a>
-    </td></tr>
-    <tr><td>Add coins</td>
-        <td>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/50/">€0,50</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/20/">€0,20</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/10/">€0,10</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/5/">€0,05</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/2/">€0,02</a>
-<a href="/pos/basket/{{ basket.id }}/receive_cents/1/">€0,01</a>
-</td></tr>
-</table>
-{% endif %}
+<p><a href="/pos/transaction/{{ basket.id }}/">Transaction page</a></p>
 </body>
 </html>

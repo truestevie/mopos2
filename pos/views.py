@@ -6,7 +6,17 @@ from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem
 
 def show_transaction(request, shopping_basket_id):
     sb = ShoppingBasket.objects.get(pk=shopping_basket_id)
-    return render(request, 'pos/transaction.html', {'basket': sb})
+    cash_received_list = Cash.objects.filter(shopping_basket=sb)
+    cash_to_return = sb.cash_received_physical + sb.cash_received_electronic - sb.total_price
+    cash_color = ""
+    if cash_to_return < 0:
+        cash_color = "red"
+    return render(request, 'pos/transaction.html',
+                  {'basket': sb,
+                   'cash_received_list': cash_received_list,
+                   'cash_to_return': cash_to_return,
+                   'cash_color': cash_color
+                   })
 
 
 def show_basket(request):
@@ -51,17 +61,17 @@ def show_basket(request):
 
 def receive_cash(request, shopping_basket_id, cash_received):
     Cash.objects.add_cash_item(shopping_basket_id, cash_received)
-    return HttpResponseRedirect("/pos/basket")
+    return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
 def receive_cents(request, shopping_basket_id, cents_received):
     Cash.objects.add_cash_cents_item(shopping_basket_id, cents_received)
-    return HttpResponseRedirect("/pos/basket")
+    return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
 def remove_cash(request, shopping_basket_id, cash_id):
     Cash.objects.remove_cash_item(shopping_basket_id, cash_id)
-    return HttpResponseRedirect("/pos/basket")
+    return HttpResponseRedirect("/pos/transaction/{}/".format(shopping_basket_id))
 
 
 def reset_table_number(request, shopping_basket_id):
@@ -87,7 +97,7 @@ def close_basket(request, shopping_basket_id):
 
 def add_item_to_basket(request, shopping_basket_id, item_template_id):
     new_basket_item = Item.objects.create_item(shopping_basket_id=shopping_basket_id, item_template_id=item_template_id)
-    sub_item_template_list = SubItemTemplate.objects.filter(item_template__id = item_template_id, available = True)
+    sub_item_template_list = SubItemTemplate.objects.filter(item_template__id=item_template_id, available = True)
     print("Number of available sub items for new basket item:", sub_item_template_list.count())
     if sub_item_template_list.count() == 1:
         SubItem.objects.create_sub_item(shopping_basket_id=shopping_basket_id,
