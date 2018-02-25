@@ -25,7 +25,11 @@ class ShoppingBasket(models.Model):
     LIFECYCLE_CHOICES = (("OPEN", "Open"), ("CLOSED", "Closed"))
     lifecycle = models.CharField(max_length=10, choices=LIFECYCLE_CHOICES, default="OPEN")
     table_number = models.IntegerField(default=1)
+    printed = models.BooleanField(default=False)
     objects = ShoppingBasketManager()
+
+    class Meta:
+        ordering = ['id']
 
     def receive_cash(self, cash_received):
         self.cash_received_physical += cash_received

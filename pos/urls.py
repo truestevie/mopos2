@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import show_basket, reset_table_number, close_basket, increment_table_number, add_item_to_basket,\
     remove_item_from_basket, add_sub_item_to_item, show_transaction, receive_cash, remove_cash, receive_cents, \
-    add_electronic_payment_with_automatic_value
+    add_electronic_payment_with_automatic_value, show_kitchen_items, mark_as_printed
 
 urlpatterns = [
     path('', show_basket, name='show_basket'),
@@ -29,4 +29,6 @@ urlpatterns = [
          add_sub_item_to_item,
          name='add_sub_item_to_item'),
     path('transaction/<int:shopping_basket_id>/', show_transaction, name='transaction'),
+    path('basket/printer/', show_kitchen_items, name='show_kitchen_items'),
+    path('basket/<int:shopping_basket_id>/printer/mark_as_printed/', mark_as_printed, name='mark_as_printed'),
 ]

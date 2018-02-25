@@ -144,3 +144,25 @@ def add_sub_item_to_item(request, shopping_basket_id, item_id, sub_item_template
                                     item_id=item_id,
                                     sub_item_template=SubItemTemplate.objects.filter(id=sub_item_template_id).first())
     return HttpResponseRedirect("/pos/basket")
+
+
+@login_required
+def show_kitchen_items(request):
+    oldest_unprinted_order= ShoppingBasket.objects.filter(printed=False).first()
+    print("+++oldestUnprintedOrder+++", oldest_unprinted_order)
+    if oldest_unprinted_order:
+        unprinted_kitchen_item_list = SubItem.objects.filter(shopping_basket__id=oldest_unprinted_order.id)
+        print("+++unprintedKitchenItems", unprinted_kitchen_item_list)
+    else:
+        unprinted_kitchen_item_list = ()
+    return render(request, 'pos/kitchen_printer.html',
+                  {'unprinted_order': oldest_unprinted_order,
+                   'unprinted_kitchen_items': unprinted_kitchen_item_list,
+                   })
+
+@login_required
+def mark_as_printed(request, shopping_basket_id):
+    sb = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+    sb.printed = True
+    sb.save()
+    return HttpResponseRedirect("/pos/basket/printer")

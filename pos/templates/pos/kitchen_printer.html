@@ -1,0 +1,44 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="5; url=/pos/basket/printer/">
+    <title>Printer</title>
+<style>
+table {
+    border-collapse: collapse;
+}
+table, td, th {
+    border: 1px solid black;
+}
+td, th {
+    padding: 3px;
+}
+a, p, div, table, td, th {
+    font-size: x-large;
+}
+</style>
+</head>
+<body>
+<h2>Kitchen items for table {{ unprinted_order.table_number }}</h2>
+{% if unprinted_kitchen_items %}
+<table>
+    <tr>
+        <th>Description</th>
+        <th>Part of</th>
+    </tr>
+    {% for kitchen_item in unprinted_kitchen_items %}
+    <tr>
+        <td>{{ kitchen_item.description }}</td><td>{{ kitchen_item.item.description }} ({{ kitchen_item.item.id }})</td>
+    </tr>
+    {% endfor %}
+</table>
+<br />
+{% if unprinted_order.lifecycle == "CLOSED" %}
+<a href="/pos/basket/{{ unprinted_order.id }}/printer/mark_as_printed/">Mark as printed</a>
+{% endif %}
+{% else %}
+<div><i>No kitchen items ordered</i>
+</div>
+{% endif %}
+</body>
+</html>
