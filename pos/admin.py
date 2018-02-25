@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Item, ItemTemplate, SubItemTemplate, SubItem, Cash, ShoppingBasket
+from .models import Item, ItemTemplate, SubItemTemplate, SubItem, Cash, ShoppingBasket, CashRegister
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -29,3 +29,4 @@ admin.site.register(Item, ItemAdmin)
 admin.site.register(SubItemTemplate, SubItemTemplateAdmin)
 admin.site.register(SubItem)
 admin.site.register(Cash)
+admin.site.register(CashRegister)

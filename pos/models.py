@@ -117,6 +117,7 @@ class SubItem(models.Model):
 
 
 class CashRegister(models.Model):
+    name = models.CharField(max_length=20)
     initial_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     sales_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     sales_electronic = models.DecimalField(max_digits=10, decimal_places=2, default=0)

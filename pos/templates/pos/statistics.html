@@ -1,0 +1,38 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="30; url=/pos/statistics/">
+    <title>Stats</title>
+<style>
+table {
+    border-collapse: collapse;
+}
+table, td, th {
+    border: 1px solid black;
+}
+td, th {
+    padding: 3px;
+}
+a, p, div, table, td, th {
+    font-size: x-large;
+}
+</style>
+</head>
+<body>
+<h1>Cash register</h1>
+<table>
+    <tr>
+        <th>Description</th>
+        <th>Value</th>
+    </tr>
+    <tr>
+        <td>Revenue</td>
+        <td align="right">€ {{ revenue }}</td>
+    </tr>
+    <tr>
+        <td>Current cash</td>
+        <td align="right">€ {{ current_cash }}</td>
+    </tr>
+</table>
+</body>
+</html>

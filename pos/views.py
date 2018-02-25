@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
-from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash
+from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash, CashRegister
 
 
 @login_required
@@ -112,6 +112,10 @@ def close_basket(request, shopping_basket_id):
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.lifecycle = 'CLOSED'
     basket.save()
+    cash_register, created = CashRegister.objects.get_or_create(name='BigVault')
+    cash_register.sales_physical += basket.cash_received_physical
+    cash_register.sales_electronic += basket.cash_received_electronic
+    cash_register.save()
     return HttpResponseRedirect("/pos/basket")
 
 
@@ -160,9 +164,26 @@ def show_kitchen_items(request):
                    'unprinted_kitchen_items': unprinted_kitchen_item_list,
                    })
 
+
 @login_required
 def mark_as_printed(request, shopping_basket_id):
     sb = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
     sb.printed = True
     sb.save()
     return HttpResponseRedirect("/pos/basket/printer")
+
+
+@login_required
+def show_statistics(request):
+    cash_register, created = CashRegister.objects.get_or_create(name='BigVault')
+    revenue = cash_register.sales_physical + cash_register.sales_electronic
+    current_cash = cash_register.initial_physical + cash_register.sales_physical
+    return render(request, 'pos/statistics.html',
+                  {'revenue': revenue,
+                   'current_cash': current_cash
+                   })
+
+
+    initial_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sales_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sales_electronic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
