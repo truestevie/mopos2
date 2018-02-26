@@ -1,8 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
 from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash, CashRegister
+from .resources import ItemResource, SubItemResource, ShoppingBasketResource
 
 
 @login_required
@@ -152,7 +153,7 @@ def add_sub_item_to_item(request, shopping_basket_id, item_id, sub_item_template
 
 @login_required
 def show_kitchen_items(request):
-    oldest_unprinted_order= ShoppingBasket.objects.filter(printed=False).first()
+    oldest_unprinted_order = ShoppingBasket.objects.filter(printed=False).first()
     print("+++oldestUnprintedOrder+++", oldest_unprinted_order)
     if oldest_unprinted_order:
         unprinted_kitchen_item_list = SubItem.objects.filter(shopping_basket__id=oldest_unprinted_order.id)
@@ -184,6 +185,31 @@ def show_statistics(request):
                    })
 
 
-    initial_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    sales_physical = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    sales_electronic = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+def export_items(request):
+    # Run an export of the collected data
+    # https://simpleisbetterthancomplex.com/packages/2016/08/11/django-import-export.html
+    item_resource = ItemResource()
+    dataset = item_resource.export()
+    response = HttpResponse(dataset.csv, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="items.csv"'
+    return response
+
+
+def export_sub_items(request):
+    # Run an export of the collected data
+    # https://simpleisbetterthancomplex.com/packages/2016/08/11/django-import-export.html
+    sub_item_resource = SubItemResource()
+    dataset = sub_item_resource.export()
+    response = HttpResponse(dataset.csv, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="subitems.csv"'
+    return response
+
+
+def export_shopping_baskets(request):
+    # Run an export of the collected data
+    # https://simpleisbetterthancomplex.com/packages/2016/08/11/django-import-export.html
+    shopping_basket_resource = ShoppingBasketResource()
+    dataset = shopping_basket_resource.export()
+    response = HttpResponse(dataset.csv, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="shoppingbaskets.csv"'
+    return response

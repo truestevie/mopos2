@@ -3,7 +3,7 @@ from .models import Item, ItemTemplate, SubItemTemplate, SubItem, Cash, Shopping
 
 
 class ItemAdmin(admin.ModelAdmin):
-    list_display = ('description', 'code', 'unit_price', 'print_order', 'available', 'shopping_basket')
+    list_display = ('description', 'code', 'unit_price', 'print_order', 'available', 'shopping_basket', 'item_template')
     ordering = ('print_order',)
 
 
@@ -13,7 +13,7 @@ class ItemTemplateAdmin(admin.ModelAdmin):
 
 
 class ShoppingBasketAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number_of_items', 'total_price', 'lifecycle', 'table_number')
+    list_display = ('id', 'number_of_items', 'total_price', 'lifecycle', 'table_number', 'last_change_date')
     ordering = ('-id',)
 
 
