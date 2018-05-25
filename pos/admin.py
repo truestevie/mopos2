@@ -8,7 +8,7 @@ class ItemAdmin(admin.ModelAdmin):
 
 
 class ItemTemplateAdmin(admin.ModelAdmin):
-    list_display = ('description', 'code', 'unit_price', 'print_order', 'available')
+    list_display = ('description', 'code', 'unit_price', 'print_order', 'available', 'number_sold')
     ordering = ('print_order',)
 
 
