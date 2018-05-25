@@ -36,7 +36,7 @@ def show_basket(request):
     if not sb:
         sb = ShoppingBasket.objects.create_shopping_basket(request.user)
     template_list = ItemTemplate.objects.filter(available=True).order_by('print_order')
-    item_list = Item.objects.filter(shopping_basket=sb).order_by('print_order')
+    item_list = Item.objects.filter(shopping_basket=sb).order_by('item_template__print_order')
     print("---Item List----", item_list)
     kitchen_item_list = SubItem.objects.filter(shopping_basket=sb)
     # for sit in SubItemTemplate.objects.all():
@@ -79,11 +79,13 @@ def show_cash_overview(request):
     revenue_electronic = cash_register.sales_electronic
     revenue_cash = cash_register.sales_physical
     revenue_total = cash_register.sales_physical + cash_register.sales_electronic
+    template_list = ItemTemplate.objects.filter(number_sold__gt=0).order_by('print_order')
     return render(request, 'pos/cash_overview.html', {'cash_start': cash_start,
                                                       'cash_current': cash_current,
                                                       'revenue_electronic': revenue_electronic,
                                                       'revenue_cash': revenue_cash,
                                                       'revenue_total': revenue_total,
+                                                      'template_list': template_list,
                                                       })
 
 
@@ -129,6 +131,7 @@ def increment_table_number(request, shopping_basket_id, increment_value):
 
 @login_required
 def close_basket(request, shopping_basket_id):
+    print("---Closing basket---")
     basket = ShoppingBasket.objects.get(pk=shopping_basket_id)
     basket.lifecycle = 'CLOSED'
     basket.save()
@@ -136,6 +139,15 @@ def close_basket(request, shopping_basket_id):
     cash_register.sales_physical += basket.total_price - basket.cash_received_electronic
     cash_register.sales_electronic += basket.cash_received_electronic
     cash_register.save()
+
+    item_list = Item.objects.filter(shopping_basket=basket).order_by('print_order')
+    print("---Item List---", item_list)
+    for item in item_list:
+        item_template = ItemTemplate.objects.get(code=item.code)
+        item_template.number_sold += item.number_of_items
+        item_template.save()
+        print(item_template.description, item_template.number_sold)
+
 
     # https://pypi.python.org/pypi/python-printer-escpos/0.0.3
 

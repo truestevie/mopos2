@@ -45,6 +45,16 @@ a, p, div, table, td, th {
     </tr>
 </table>
 <br />
+
+<table>
+    {% for template in template_list %}
+    <tr>
+        <td>{{ template.description }}</td>
+        <td>{{ template.number_sold }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br />
 <a href="/pos/">Back to basket</a>
 </body>
 </html>

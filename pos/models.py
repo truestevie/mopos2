@@ -42,6 +42,7 @@ class ItemTemplate(models.Model):
     unit_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     print_order = models.SmallIntegerField(default=0)
     available = models.BooleanField(default=True)
+    number_sold = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['print_order']
