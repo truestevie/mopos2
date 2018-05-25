@@ -2,7 +2,7 @@ from django.urls import path
 from .views import show_basket, reset_table_number, close_basket, increment_table_number, add_item_to_basket,\
     remove_item_from_basket, add_sub_item_to_item, show_transaction, receive_cash, remove_cash, receive_cents, \
     add_electronic_payment_with_automatic_value, show_kitchen_items, mark_as_printed, show_statistics, \
-    export_items, export_sub_items, export_shopping_baskets, remove_x_items_from_basket
+    export_items, export_sub_items, export_shopping_baskets, remove_x_items_from_basket, show_cash_overview
 from django.contrib.auth import views as auth_views
 
 
@@ -41,6 +41,7 @@ urlpatterns = [
     path('export/items/', export_items, name='export_items'),
     path('export/subitems/', export_sub_items, name='export_sub_items'),
     path('export/shoppingbaskets/', export_shopping_baskets, name='export_shopping_baskets'),
+    path('overview/', show_cash_overview, name='show_cash_overview'),
     path('login/', auth_views.login, name='login'),
     path('logout/', auth_views.logout, {'next_page': '/pos/login'}, name='logout'),
     # path('accounts/', include('django.contrib.auth.urls')),

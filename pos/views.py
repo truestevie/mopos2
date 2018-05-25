@@ -71,6 +71,22 @@ def show_basket(request):
                                                })
 
 
+def show_cash_overview(request):
+    print("---Showing the overview for user {}---".format(request.user))
+    cash_register, created = CashRegister.objects.get_or_create(name='BigVault')
+    cash_start = cash_register.initial_physical
+    cash_current = cash_register.initial_physical + cash_register.sales_physical
+    revenue_electronic = cash_register.sales_electronic
+    revenue_cash = cash_register.sales_physical
+    revenue_total = cash_register.sales_physical + cash_register.sales_electronic
+    return render(request, 'pos/cash_overview.html', {'cash_start': cash_start,
+                                                      'cash_current': cash_current,
+                                                      'revenue_electronic': revenue_electronic,
+                                                      'revenue_cash': revenue_cash,
+                                                      'revenue_total': revenue_total,
+                                                      })
+
+
 @login_required
 def receive_cash(request, shopping_basket_id, cash_received):
     Cash.objects.add_cash_item(shopping_basket_id, cash_received)
