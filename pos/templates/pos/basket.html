@@ -108,11 +108,12 @@ a, p, div, table, td, th {
 {% endfor %}
 </table>
 {% endif %}
-<p>User name: {{ request.user }}</p>
-<p>Basket ID: {{ basket.id }}</p>
-<p>Number of items: {{ basket.number_of_items }} </p>
-<p>Total amount: € {{ basket.total_price }}</p>
+<p>
+User name: {{ request.user }} <br />
+Basket ID: {{ basket.id }}<br />
+Basket of items: {{ basket.number_of_items }} <br />
+Basket amount: € {{ basket.total_price }}<br />
+</p>
 <a href="/pos/logout/">Logout</a>
-
 </body>
 </html>

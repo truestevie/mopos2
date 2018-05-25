@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Basket</title>
+    <title>Mopos</title>
 <style>
 table {
     border-collapse: collapse;
@@ -19,7 +19,6 @@ a, p, div, table, td, th {
 </head>
 <body>
 {% if basket.number_of_items > 0 %}
-<h2>Basket overview</h2>
 <table>
     <tr><td>Number of items</td><td align="right">{{ basket.number_of_items }}</td></tr>
     <tr><td>Total amount</td><td align="right"><b>€ {{ basket.total_price }}</b></td></tr>
@@ -29,7 +28,7 @@ a, p, div, table, td, th {
     <tr><td>Return to customer</td><td align="right"><font color="{{ cash_color }}">€ {{ cash_to_return }}</font></td></tr>
 
 </table>
-<h2>Cash</h2>
+<br />
 <table>
     <tr><td>Notes & coins received</td>
         <td>
@@ -76,8 +75,8 @@ a, p, div, table, td, th {
     </tr>
 </table>
 {% endif %}
-<p><a href="/pos/basket/">Basket page</a></p>
+<p><a href="/pos/basket/">Back to basket</a></p>
 <br /><br />
-<p><a href="/pos/basket/{{ basket.id }}/close_basket/">Close basket (!)</a></p>
+<p><a href="/pos/basket/{{ basket.id }}/close_basket/">Close transaction and start new basket</a></p>
 </body>
 </html>
