@@ -1,9 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 
 from .models import ShoppingBasket, ItemTemplate, Item, SubItemTemplate, SubItem, Cash, CashRegister
 from .resources import ItemResource, SubItemResource, ShoppingBasketResource
+
+# from escpos.connections import getNetworkPrinter
 
 
 @login_required
@@ -27,13 +29,14 @@ def show_transaction(request, shopping_basket_id):
                    })
 
 
-@login_required
+@login_required(login_url='/pos/login')
 def show_basket(request):
-    sb = ShoppingBasket.objects.filter(lifecycle="OPEN").first()
+    print("---Showing the basket for user {}---".format(request.user))
+    sb = ShoppingBasket.objects.filter(lifecycle="OPEN", user=request.user).first()
     if not sb:
-        sb = ShoppingBasket.objects.create_shopping_basket()
-    template_list = ItemTemplate.objects.filter(available=True)
-    item_list = Item.objects.filter(shopping_basket=sb)
+        sb = ShoppingBasket.objects.create_shopping_basket(request.user)
+    template_list = ItemTemplate.objects.filter(available=True).order_by('print_order')
+    item_list = Item.objects.filter(shopping_basket=sb).order_by('print_order')
     print("---Item List----", item_list)
     kitchen_item_list = SubItem.objects.filter(shopping_basket=sb)
     # for sit in SubItemTemplate.objects.all():
@@ -64,7 +67,7 @@ def show_basket(request):
                                                'select_sub_items_dict': sub_item_template_dict,
                                                'cash_received_list': cash_received_list,
                                                'cash_to_return': cash_to_return,
-                                               'cash_color': cash_color
+                                               'cash_color': cash_color,
                                                })
 
 
@@ -114,15 +117,27 @@ def close_basket(request, shopping_basket_id):
     basket.lifecycle = 'CLOSED'
     basket.save()
     cash_register, created = CashRegister.objects.get_or_create(name='BigVault')
-    cash_register.sales_physical += basket.cash_received_physical
+    cash_register.sales_physical += basket.total_price - basket.cash_received_electronic
     cash_register.sales_electronic += basket.cash_received_electronic
     cash_register.save()
+
+    # https://pypi.python.org/pypi/python-printer-escpos/0.0.3
+
+    # printer = getNetworkPrinter()(host='10.1.1.207')
+    # printer.text("Hello World")
+    # printer.lf()
+    # printer.cutPaper()
+
+    # https://python-escpos.readthedocs.io/en/latest/user/methods.html
+
     return HttpResponseRedirect("/pos/basket")
 
 
 @login_required
-def add_item_to_basket(request, shopping_basket_id, item_template_id):
-    new_basket_item = Item.objects.create_item(shopping_basket_id=shopping_basket_id, item_template_id=item_template_id)
+def add_item_to_basket(request, shopping_basket_id, item_template_id, number_of_items):
+    new_basket_item = Item.objects.create_item(shopping_basket_id=shopping_basket_id,
+                                               item_template_id=item_template_id,
+                                               number_of_items=number_of_items)
     sub_item_template_list = SubItemTemplate.objects.filter(item_template__id=item_template_id, available=True)
     print("Number of available sub items for new basket item:", sub_item_template_list.count())
     if sub_item_template_list.count() == 1:
@@ -136,10 +151,31 @@ def add_item_to_basket(request, shopping_basket_id, item_template_id):
 def remove_item_from_basket(request, shopping_basket_id, item_id):
     item = Item.objects.filter(id=item_id).first()
     sb = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
-    sb.number_of_items -= 1
-    sb.total_price -= item.unit_price
+    sb.number_of_items -= item.number_of_items
+    sb.total_price -= item.unit_price * item.number_of_items
     sb.save()
     item.delete()
+    return HttpResponseRedirect("/pos/basket")
+
+
+@login_required
+def remove_x_items_from_basket(request, shopping_basket_id, item_id, number_of_items):
+    item = Item.objects.filter(id=item_id).first()
+    sb = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
+    if item.number_of_items > number_of_items:
+        item.number_of_items -= number_of_items
+        item.total_price -= number_of_items * item.unit_price
+        item.save()
+        sb.number_of_items -= number_of_items
+        sb.total_price -=  number_of_items * item.unit_price
+        sb.save()
+    elif item.number_of_items == number_of_items:
+        item.delete()
+        sb.number_of_items -= number_of_items
+        sb.total_price -= number_of_items * item.unit_price
+        sb.save()
+    else:
+        print("---Can not remove that amount of items from the basket---")
     return HttpResponseRedirect("/pos/basket")
 
 
@@ -213,3 +249,8 @@ def export_shopping_baskets(request):
     response = HttpResponse(dataset.csv, content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="shoppingbaskets.csv"'
     return response
+
+def logout(request):
+    if request.method == "POST":
+        logout(request)
+        return redirect('home')

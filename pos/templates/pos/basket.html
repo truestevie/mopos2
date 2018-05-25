@@ -1,7 +1,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Basket</title>
+    <title>Mopos</title>
 <style>
 table {
     border-collapse: collapse;
@@ -19,55 +19,67 @@ a, p, div, table, td, th {
 </head>
 <body>
 <p>
-<h1>Shopping basket {{ basket.id }}</h1>
-<div>Table: <b>{{ basket.table_number }}</b>
-    <a href="/pos/basket/{{ basket.id }}/reset/">Set to 1</a>
-    <a href="/pos/basket/{{ basket.id }}/increment_table_number/1/">+1</a>
-    <a href="/pos/basket/{{ basket.id }}/increment_table_number/5/">+5</a>
-</div>
-<h2>Available items</h2>
 {% if template_list %}
-<table>
+<div><table>
     <tr>
-        <th>Description</th>
-        <th>Price</th>
+        <th>Available item</th>
+        <th>Unit price</th>
         <th>Action</th>
     </tr>
     {% for template in template_list %}
     <tr>
         <td>{{ template.description }}</td>
         <td align="right">€ {{ template.unit_price }}</td>
-        <td><a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/">Add item</a></td>
+        <td>
+            <a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/1/">+1</a>
+            <a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/2/">+2</a>
+            <a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/3/">+3</a>
+            <a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/4/">+4</a>
+            <a href="/pos/basket/{{ basket.id }}/add_item/{{ template.id }}/5/">+5</a>
+        </td>
     </tr>
     {% endfor %}
-</table>
+</table></div>
 {% else %}
 <div><i>No products defined</i>
 </div>
-{% endif %}
-<h2>Ordered items</h2>
+    {% endif %}
 {% if item_list %}
-<table>
+<div>
+    <p></p>
+    <table>
     <tr>
-        <th>Description</th>
-        <th>Price</th>
+        <th>Ordered item</th>
+        <th>Amount</th>
+        <th>Subtotal</th>
         <th>Action</th>
     </tr>
     {% for item in item_list %}
     <tr>
         <td>{{ item.description }}</td>
-        <td align="right">€ {{ item.unit_price }}</td>
-        <td><a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item</a> ({{ item.id }})</td>
+        <td align="right"> {{ item.number_of_items }}</td>
+        <td align="right">€ {{ item.total_price }}</td>
+        <td>
+            <a href="/pos/basket/{{ basket.id }}/remove_x_items/{{ item.id }}/1">-1</a>
+            <a href="/pos/basket/{{ basket.id }}/remove_item/{{ item.id }}/">Remove item</a>
+        </td>
     </tr>
     {% endfor %}
-    <tr><td>Sum</td><td align="right"><a href="/pos/transaction/{{ basket.id }}/"><b>€ {{ basket.total_price }}</b></a></td></tr>
+</table>
+</div>
+<p></p>
+<table>
+    <tr>
+        <th>Sum</th>
+    </tr>
+    <tr>
+        <td align="right"><a href="/pos/transaction/{{ basket.id }}/"><b>€ {{ basket.total_price }}</b></a></td>
+    </tr>
 </table>
 {% else %}
-<div><i>No items ordered</i>
-</div>
 {% endif %}
-<h2>Kitchen items</h2>
 {% if kitchen_item_list %}
+<h2>Kitchen items</h2>
 <table>
     <tr>
         <th>Description</th>
@@ -80,8 +92,6 @@ a, p, div, table, td, th {
     </tr>
     {% endfor %}
 </table>
-{% else %}
-<div><i>No kitchen items ordered</i>
 </div>
 {% endif %}
 
@@ -98,5 +108,11 @@ a, p, div, table, td, th {
 {% endfor %}
 </table>
 {% endif %}
+<p>User name: {{ request.user }}</p>
+<p>Basket ID: {{ basket.id }}</p>
+<p>Number of items: {{ basket.number_of_items }} </p>
+<p>Total amount: € {{ basket.total_price }}</p>
+<a href="/pos/logout/">Logout</a>
+
 </body>
 </html>

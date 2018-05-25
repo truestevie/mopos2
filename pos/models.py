@@ -5,12 +5,12 @@ D = decimal.Decimal
 
 
 class ShoppingBasketManager(models.Manager):
-    def create_shopping_basket(self):
+    def create_shopping_basket(self, user):
         if ShoppingBasket.objects.last():
             next_table_number = ShoppingBasket.objects.last().table_number + 1
         else:
             next_table_number = 1
-        shopping_basket = self.create(table_number=next_table_number)
+        shopping_basket = self.create(table_number=next_table_number, user = user)
         return shopping_basket
 
 
@@ -22,6 +22,7 @@ class ShoppingBasket(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
     last_change_date = models.DateTimeField(auto_now=True)
     owner = models.SmallIntegerField(default=0)
+    user = models.CharField(max_length=30, default="")
     LIFECYCLE_CHOICES = (("OPEN", "Open"), ("CLOSED", "Closed"))
     lifecycle = models.CharField(max_length=10, choices=LIFECYCLE_CHOICES, default="OPEN")
     table_number = models.IntegerField(default=1)
@@ -50,16 +51,33 @@ class ItemTemplate(models.Model):
 
 
 class ItemManager(models.Manager):
-    def create_item(self, shopping_basket_id, item_template_id):
+    def create_item(self, shopping_basket_id, item_template_id, number_of_items):
         shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
         item_template = ItemTemplate.objects.filter(pk=item_template_id).first()
-        item = self.create(code=item_template.code,
-                           description=item_template.description,
-                           unit_price=item_template.unit_price,
-                           shopping_basket=shopping_basket,
-                           item_template=item_template)
-        shopping_basket.total_price += item.unit_price
-        shopping_basket.number_of_items += 1
+        sub_item_template_count = SubItemTemplate.objects.filter(
+            item_template__id=item_template_id,
+            available=True).count()
+        if sub_item_template_count == 0:  # Item has no options, so just create once and increment amount
+            item, created = self.get_or_create(code=item_template.code,
+                                               description=item_template.description,
+                                               unit_price=item_template.unit_price,
+                                               shopping_basket=shopping_basket,
+                                               item_template=item_template)
+            if created:
+                item.number_of_items = number_of_items
+                item.total_price = number_of_items * item.unit_price
+            else:
+                item.number_of_items += number_of_items
+                item.total_price += number_of_items * item.unit_price
+            item.save()
+        else:
+            item = self.create(code=item_template.code,
+                               description=item_template.description,
+                               unit_price=item_template.unit_price,
+                               shopping_basket=shopping_basket,
+                               item_template=item_template)
+        shopping_basket.total_price += item.unit_price * number_of_items
+        shopping_basket.number_of_items += number_of_items
         shopping_basket.save()
         return item
 
@@ -68,6 +86,8 @@ class Item(models.Model):
     code = models.CharField(max_length=3)
     description = models.CharField(max_length=30)
     unit_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
+    number_of_items = models.IntegerField(default=0)
+    total_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     print_order = models.SmallIntegerField(default=0)
     available = models.BooleanField(default=True)
     shopping_basket = models.ForeignKey(ShoppingBasket, on_delete=models.CASCADE)

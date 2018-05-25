@@ -13,7 +13,7 @@ class ItemTemplateAdmin(admin.ModelAdmin):
 
 
 class ShoppingBasketAdmin(admin.ModelAdmin):
-    list_display = ('id', 'number_of_items', 'total_price', 'lifecycle', 'table_number', 'last_change_date')
+    list_display = ('id', 'user', 'number_of_items', 'total_price', 'lifecycle', 'table_number', 'last_change_date')
     ordering = ('-id',)
 
 

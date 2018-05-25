@@ -2,7 +2,8 @@ from django.urls import path
 from .views import show_basket, reset_table_number, close_basket, increment_table_number, add_item_to_basket,\
     remove_item_from_basket, add_sub_item_to_item, show_transaction, receive_cash, remove_cash, receive_cents, \
     add_electronic_payment_with_automatic_value, show_kitchen_items, mark_as_printed, show_statistics, \
-    export_items, export_sub_items, export_shopping_baskets
+    export_items, export_sub_items, export_shopping_baskets, remove_x_items_from_basket
+from django.contrib.auth import views as auth_views
 
 
 urlpatterns = [
@@ -21,12 +22,15 @@ urlpatterns = [
     # path('basket/<int:shopping_basket_id>/receive_electronic_payment/<int:electronic_received>/<int:electronic_cents_received/',
     #     receive_electronic_payment, name='receive_electronic_payment'),
     path('basket/<int:shopping_basket_id>/close_basket/', close_basket, name='close_basket'),
-    path('basket/<int:shopping_basket_id>/add_item/<int:item_template_id>/',
+    path('basket/<int:shopping_basket_id>/add_item/<int:item_template_id>/<int:number_of_items>/',
          add_item_to_basket,
          name='add_item_to_basket'),
     path('basket/<int:shopping_basket_id>/remove_item/<int:item_id>/',
          remove_item_from_basket,
          name='remove_item_from_basket'),
+    path('basket/<int:shopping_basket_id>/remove_x_items/<int:item_id>/<int:number_of_items>/',
+         remove_x_items_from_basket,
+         name='remove_x_items_from_basket'),
     path('basket/<int:shopping_basket_id>/item/<int:item_id>/add_sub_item/<int:sub_item_template_id>/',
          add_sub_item_to_item,
          name='add_sub_item_to_item'),
@@ -37,5 +41,10 @@ urlpatterns = [
     path('export/items/', export_items, name='export_items'),
     path('export/subitems/', export_sub_items, name='export_sub_items'),
     path('export/shoppingbaskets/', export_shopping_baskets, name='export_shopping_baskets'),
+    path('login/', auth_views.login, name='login'),
+    path('logout/', auth_views.logout, {'next_page': '/pos/login'}, name='logout'),
+    # path('accounts/', include('django.contrib.auth.urls')),
+    # path('logout/', logout, name='logout'),
+
 
 ]
