@@ -10,7 +10,7 @@ class ShoppingBasketManager(models.Manager):
             next_table_number = ShoppingBasket.objects.last().table_number + 1
         else:
             next_table_number = 1
-        shopping_basket = self.create(table_number=next_table_number, user = user)
+        shopping_basket = self.create(table_number=next_table_number, user=user)
         return shopping_basket
 
 
@@ -175,7 +175,8 @@ class CashManager(models.Manager):
 
     def add_electronic_payment_with_automatic_value(self, shopping_basket_id):
         shopping_basket = ShoppingBasket.objects.filter(pk=shopping_basket_id).first()
-        electronic_value = shopping_basket.total_price - shopping_basket.cash_received_physical -\
+        electronic_value = shopping_basket.total_price - \
+                           shopping_basket.cash_received_physical - \
                            shopping_basket.cash_received_electronic
         cash_item = self.create(shopping_basket=shopping_basket, value=electronic_value, electronic=True)
         shopping_basket.cash_received_electronic += electronic_value
